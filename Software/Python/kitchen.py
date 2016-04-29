@@ -42,62 +42,42 @@ import grovepi
 
 # Connect the Grove Rotary Angle Sensor to analog port A0
 # SIG,NC,VCC,GND
-p0 = 0
-p1 = 1
-p2 = 2
-
+ps = array(0, 1, 2)
 # Connect the LED to digital port D5
 # SIG,NC,VCC,GND
-l0 = 5
-l1 = 6
-l2 = 7
+ls = array(5, 6, 7)
 
-grovepi.pinMode(p0,"INPUT")
-#grovepi.pinMode(p1,"INPUT")
-#grovepi.pinMode(p2,"INPUT")
-grovepi.pinMode(l0,"OUTPUT")
-#grovepi.pinMode(l1,"OUTPUT")
-#grovepi.pinMode(l2,"OUTPUT")
+for p in ps:
+    grovepi.pinMode(p,"INPUT")
+    
+for l in ls:
+    grovepi.pinMode(l,"OUTPUT")
+
 time.sleep(1)
 
 # Reference voltage of ADC is 5v
 adc_ref = 5
-
 # Vcc of the grove interface is normally 5v
 grove_vcc = 5
-
 # Full value of the rotary angle is 300 degrees, as per it's specs (0 to 300)
 full_angle = 300
 
+prev = array(0, 0, 0)
+
 while True:
     try:
-        # Read sensor value from potentiometer
-        sensor_value0 = grovepi.analogRead(p0)
-        #sensor_value1 = grovepi.analogRead(p1)
-        #sensor_value2 = grovepi.analogRead(p2)
-
-        # Calculate voltage
-        voltage0 = round((float)(sensor_value0) * adc_ref / 1023, 2)
-        #voltage1 = round((float)(sensor_value1) * adc_ref / 1023, 2)
-        #voltage2 = round((float)(sensor_value2) * adc_ref / 1023, 2)
-
-        # Calculate rotation in degrees (0 to 300)
-        degrees0 = round((voltage0 * full_angle) / grove_vcc, 2)
-        #degrees1 = round((voltage1 * full_angle) / grove_vcc, 2)
-        #degrees2 = round((voltage2 * full_angle) / grove_vcc, 2)
-
-        # Give PWM output to LED
-        grovepi.digitalWrite(l0,1 if degrees0 > 0 else 0)
-        #grovepi.digitalWrite(l1,1 if degrees1 > 0 else 0)
-        #grovepi.digitalWrite(l2,1 if degrees2 > 0 else 0)
-        
-        print("Sensor1 sensor_value = %d voltage = %.2f degrees = %.1f" %(sensor_value0, voltage0, degrees0))
-        print("Sensor1 sensor_value = %d voltage = %.2f degrees = %.1f" %(sensor_value1, voltage1, degrees1))
-        print("Sensor1 sensor_value = %d voltage = %.2f degrees = %.1f" %(sensor_value2, voltage2, degrees2))
+        for i, p in enumerate(ps):
+            sensor_value = grovepi.analogRead(p)
+            voltage = round((float)(sensor_value) * adc_ref / 1023, 2)
+            degrees = round((voltage * full_angle) / grove_vcc, 2)
+            brightness = int(degrees / full_angle * 255)
+            if brightness != prev[i]:
+                prev[i] = brightness
+                grovepi.analogWrite(ls[i],brightness)
+            
     except KeyboardInterrupt:
-        grovepi.digitalWrite(l0,0)
-        #grovepi.digitalWrite(l1,0)
-        #grovepi.digitalWrite(l2,0)
+        for l in ls:
+            grovepi.analogWrite(l,0)
         break
     except IOError:
         print ("Error")
