@@ -51,9 +51,11 @@ import grovepi
 
 # Connect the Grove PIR Motion Sensor to digital port D8
 # SIG,NC,VCC,GND
-pir_sensor = 7
+pir_sensor = 8
+led = 4
 motion=0
 grovepi.pinMode(pir_sensor,"INPUT")
+grovepi.pinMode(led,"OUTPUT")
 
 while True:
 	try:
@@ -61,9 +63,9 @@ while True:
 		motion=grovepi.digitalRead(pir_sensor)
 		if motion==0 or motion==1:	# check if reads were 0 or 1 it can be 255 also because of IO Errors so remove those values
 			if motion==1:
-				print ('Motion Detected')
-			else:
-				print ('-')
+				grovepi.digitalWrite(led,1)
+				time.sleep(10)
+				grovepi.digitalWrite(led,0)
 
 			# if your hold time is less than this, you might not see as many detections
 		time.sleep(.2)

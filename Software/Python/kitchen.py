@@ -55,13 +55,9 @@ for l in ls:
 
 time.sleep(1)
 
-# Reference voltage of ADC is 5v
 adc_ref = 5
-# Vcc of the grove interface is normally 5v
 grove_vcc = 5
-# Full value of the rotary angle is 300 degrees, as per it's specs (0 to 300)
 full_angle = 300
-
 prev = array(0, 0, 0)
 
 while True:
