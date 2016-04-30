@@ -70,5 +70,8 @@ while True:
 			# if your hold time is less than this, you might not see as many detections
 		time.sleep(.2)
 
+	except KeyboardInterrupt:
+		grovepi.digitalWrite(led,0)
+
 	except IOError:
 		print ("Error")
