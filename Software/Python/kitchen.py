@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from threading import Timer
+from datetime import datetime,timedelta
 import time
 import grovepi
 
@@ -23,9 +23,10 @@ adc_ref = 5
 grove_vcc = 5
 full_angle = 300
 prevv = [0, 0, 0]
-
-def litzmotionoff():
-    grovepi.digitalWrite(litzmotion,0)
+period = timedelta(minutes=1)
+next_time = datetime.now() + period
+minutes = 0
+motion_litz_on = False
 
 while True:
     try:
@@ -38,13 +39,21 @@ while True:
             if brightness != prevv[i]:
                 prevv[i] = brightness
                 grovepi.analogWrite(lightz[i],brightness)
-        motion=grovepi.digitalRead(senzormotion)
         # MOTION LIGHT
-        if motion==0 or motion==1:
-            if motion==1:
-                grovepi.digitalWrite(litzmotion,1)
-                timah = Timer(10,litzmotionoff)
-		timah.start()
+        ## Light timeout
+        if next_time <= datetime.now():
+            minutes += 1
+            next_time += period
+            grovepi.digitalWrite(litzmotion,0)
+            motion_litz_on = False
+            
+        ## Motion detect
+        if motion_litz_on==False:
+            motion=grovepi.digitalRead(senzormotion)
+            if motion==0 or motion==1:
+                if motion==1:
+                    grovepi.digitalWrite(litzmotion,1)
+                    motion_litz_on = True
     except KeyboardInterrupt:
         for litz in lightz:
             grovepi.analogWrite(litz,0)
